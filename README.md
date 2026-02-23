@@ -1,2 +1,96 @@
 # An-lise-Explorat-ria-de-Dados-E-commerce
 Este projeto realiza uma Análise Exploratória de Dados (EDA) utilizando Python, com foco na visualização e entendimento estatístico de um conjunto de dados de e-commerce (ecommerce_estatistica.csv).  O código utiliza as bibliotecas Pandas, Matplotlib e Seaborn para tratamento, análise e visualização dos dados.
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+sns.set(style="whitegrid")
+
+df = pd.read_csv("ecommerce_estatistica.csv")
+
+# Padronização forte dos nomes das colunas
+df.columns = (
+    df.columns
+    .str.strip()
+    .str.lower()
+    .str.normalize("NFKD")
+    .str.encode("ascii", errors="ignore")
+    .str.decode("utf-8")
+)
+
+print("Colunas disponíveis:")
+print(df.columns.tolist())
+
+# 3. ANÁLISE EXPLORATÓRIA
+
+print("\nPrimeiras linhas:")
+print(df.head())
+
+print("\nInformações gerais:")
+print(df.info())
+
+print("\nEstatísticas descritivas:")
+print(df.describe())
+
+print("\nValores nulos:")
+print(df.isnull().sum())
+
+# Separar colunas numéricas e categóricas
+numericas = df.select_dtypes(include="number")
+categoricas = df.select_dtypes(include="object")
+
+# 4. HISTOGRAMA
+coluna_hist = numericas.columns[0]
+
+plt.figure(figsize=(10,6))
+sns.histplot(df[coluna_hist], bins=30, kde=True)
+plt.title(f"Histograma - {coluna_hist}")
+plt.show()
+
+# 5. GRÁFICO DE DISPERSÃO
+if len(numericas.columns) >= 2:
+    x_col = numericas.columns[0]
+    y_col = numericas.columns[1]
+
+    plt.figure(figsize=(10,6))
+    sns.scatterplot(x=x_col, y=y_col, data=df)
+    plt.title(f"Dispersão - {x_col} vs {y_col}")
+    plt.show()
+
+# 6. MAPA DE CALOR
+plt.figure(figsize=(10,6))
+sns.heatmap(numericas.corr(), annot=True)
+plt.title("Mapa de Correlação")
+plt.show()
+
+# 7. GRÁFICO DE BARRA
+medias = numericas.mean().sort_values()
+plt.figure(figsize=(10,6))
+medias.plot(kind="bar")
+plt.title("Gráfico de Barra - Média das Variáveis Numéricas")
+plt.ylabel("Valor Médio")
+plt.show()
+
+# 8. GRÁFICO DE PIZZA
+if len(categoricas.columns) > 0:
+    coluna_pizza = categoricas.columns[0]
+    contagem = df[coluna_pizza].value_counts().head(5)
+
+    plt.figure(figsize=(8,8))
+    plt.pie(contagem, labels=contagem.index, autopct="%1.1f%%")
+    plt.title(f"Gráfico de Pizza - {coluna_pizza}")
+    plt.show()
+
+# 9. GRÁFICO EM U (KDE)
+plt.figure(figsize=(10,6))
+sns.kdeplot(df[coluna_hist], fill=True)
+plt.title(f"Curva de Distribuição (Formato U possível) - {coluna_hist}")
+plt.show()
+
+# 10. GRÁFICO DE REGRESSÃO
+if len(numericas.columns) >= 2:
+    plt.figure(figsize=(10,6))
+    sns.regplot(x=x_col, y=y_col, data=df)
+    plt.title(f"Regressão - {x_col} vs {y_col}")
+    plt.show()
